@@ -1,7 +1,7 @@
 import {Flex} from '@mparticle/aquarium'
-import {Predictions} from '../constants/Predictions.ts'
-import {useReviewStore} from '../stores/ReviewStore.ts'
-import {ReviewPrediction} from './ReviewPrediction.tsx'
+import {Predictions} from 'src/constants/Predictions.ts'
+import {useReviewStore} from 'src/stores/ReviewStore.ts'
+import {ReviewPrediction} from 'src/components/ReviewPrediction.tsx'
 
 export function ReviewPredictions() {
   const { diff } = useReviewStore()

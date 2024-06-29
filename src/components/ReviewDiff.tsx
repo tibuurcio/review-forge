@@ -1,7 +1,7 @@
 import {Button, Flex} from '@mparticle/aquarium'
 import {useState} from 'react'
 import {Diff, Hunk, parseDiff} from 'react-diff-view'
-import {useReviewStore} from '../stores/ReviewStore.ts'
+import {useReviewStore} from 'src/stores/ReviewStore.ts'
 
 export function ReviewDiff() {
   const { diff } = useReviewStore()

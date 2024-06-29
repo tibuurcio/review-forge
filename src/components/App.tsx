@@ -1,6 +1,6 @@
-import {AppContent} from './AppContent.tsx'
-import {AppNavigation} from './AppNavigation.tsx'
-import '../styles/app.css'
+import {AppContent} from 'src/components/AppContent.tsx'
+import {AppNavigation} from 'src/components/AppNavigation.tsx'
+import 'src/styles/app.css'
 
 function App() {
   return (<>

@@ -1,7 +1,7 @@
 import {Space} from '@mparticle/aquarium'
-import {ReviewInput} from './ReviewInput.tsx'
-import {ReviewDiff} from './ReviewDiff.tsx'
-import {ReviewPredictions} from './ReviewPredictions.tsx'
+import {ReviewInput} from 'src/components/ReviewInput.tsx'
+import {ReviewDiff} from 'src/components/ReviewDiff.tsx'
+import {ReviewPredictions} from 'src/components/ReviewPredictions.tsx'
 
 export const AppContent = () => {
   return <>

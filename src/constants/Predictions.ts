@@ -1,4 +1,4 @@
-import {Prediction} from './Prediction.ts'
+import type {Prediction} from 'src/constants/Prediction.ts'
 
 export const Predictions: Prediction[] = [
   {

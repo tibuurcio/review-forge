@@ -1,6 +1,6 @@
-import {Card, Center, Flex, Spin, Typography} from '@mparticle/aquarium'
+import {Card, Center, Spin, Typography} from '@mparticle/aquarium'
 import {useEffect, useState} from 'react'
-import {Prediction} from '../constants/Prediction.ts'
+import type {Prediction} from 'src/constants/Prediction.ts'
 
 interface PredictionProps {
   prediction: Prediction
@@ -10,7 +10,7 @@ export function ReviewPrediction(props: PredictionProps) {
   const [isLoadingPrediction, setIsLoadingPrediction] = useState<boolean>(true)
 
   useEffect(() => { init() }, [])
-  
+
   return <>
     <div className="reviewPrediction">
       <Card title={props.prediction.display}>

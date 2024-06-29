@@ -1,6 +1,6 @@
 import {Input, Typography} from '@mparticle/aquarium'
 import {useState} from 'react'
-import {useReviewStore} from '../stores/ReviewStore.ts'
+import {useReviewStore} from 'src/stores/ReviewStore.ts'
 
 export function ReviewInput() {
   const [isFetching, setIsFetching] = useState<boolean>()
