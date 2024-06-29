@@ -3,6 +3,7 @@
 @import "node_modules/react-diff-view/style/index.css";
 @import "react-diff-view-overrides.css";
 
+@import "utils.css";
 @import "app.css";
 @import "review-input.css";
 @import "review-diff.css";
