@@ -11,6 +11,9 @@ module.exports = {
   ],
   ignorePatterns: ['dist', '.eslintrc.cjs'],
   parser: '@typescript-eslint/parser',
+  parserOptions: {
+    project: ['./tsconfig.app.json'],
+  },
   plugins: ['react-refresh'],
   rules: {
     'react-refresh/only-export-components': [
@@ -18,4 +21,5 @@ module.exports = {
       { allowConstantExport: true },
     ],
   },
+  '@typescript-eslint/no-unused-vars': 'off',
 }
