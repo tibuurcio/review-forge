@@ -1,0 +1,10 @@
+.reviewInput__label {
+    padding-bottom: var(--padding-sm);
+    
+}
+
+.reviewInput__input {
+    font-size: var(--font-size-lg);
+    border-radius: var(--border-radius);
+    box-sizing: border-box;
+}

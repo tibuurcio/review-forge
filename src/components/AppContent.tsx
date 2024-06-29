@@ -1,9 +1,11 @@
-import {AppName} from './App.tsx'
+import {ReviewInput} from './ReviewInput.tsx'
 
 export const AppContent = () => {
   return <>
     <div className="app__content">
-      <h2>Hello {AppName}</h2>
+
+      <ReviewInput/>
+
     </div>
   </>
 }
