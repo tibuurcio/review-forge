@@ -1,0 +1,4 @@
+.diff.diff-split:not(:last-child) {
+    margin-bottom: var(--margin-lg) !important;
+    border-bottom: solid 2px var(--color-border) !important;
+}

@@ -1,6 +1,9 @@
 @import "../../node_modules/@mparticle/aquarium/dist/style.css";
+@import "../../node_modules/react-diff-view/style/index.css";
+@import "react-diff-view-overrides.css";
 @import "app.css";
 @import "review-input.css";
+@import "review-diff.css";
 
 #root {
     width: 100vw;

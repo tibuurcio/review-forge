@@ -13,7 +13,9 @@
     "@mparticle/aquarium": "1.19.3",
     "antd": "5.14.1",
     "react": "18.3.1",
-    "react-dom": "18.3.1"
+    "react-diff-view": "3.2.1",
+    "react-dom": "18.3.1",
+    "zustand": "4.5.4"
   },
   "devDependencies": {
     "@types/react": "18.3.3",

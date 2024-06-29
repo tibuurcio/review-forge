@@ -1,0 +1,16 @@
+.reviewDiff {
+    padding-top: var(--padding-lg);
+}
+
+.reviewDiff__toggleDiff {
+    align-self: flex-end;
+    margin-bottom: var(--margin);
+}
+
+.reviewDiff__diffFiles {
+    max-height: 33vh;
+    overflow: auto;
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
+    padding-top: var(--padding-lg);
+}
