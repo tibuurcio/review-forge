@@ -4,12 +4,12 @@ import {Diff, Hunk, parseDiff} from 'react-diff-view'
 import {useReviewStore} from '../stores/ReviewStore.ts'
 
 export function ReviewDiff() {
-  const diff = useReviewStore(state => state.diff)
+  const { diff } = useReviewStore()
 
   const [isShowingDiff, setIsShowingDiff] = useState<boolean>()
 
   const files = parseDiff(diff)
-  
+
   return <>
     {diff &&
      <Flex vertical className="reviewDiff">

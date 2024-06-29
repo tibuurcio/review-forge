@@ -4,6 +4,7 @@
 @import "app.css";
 @import "review-input.css";
 @import "review-diff.css";
+@import "review-predictions.css";
 
 #root {
     width: 100vw;

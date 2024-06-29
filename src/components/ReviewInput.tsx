@@ -7,7 +7,7 @@ export function ReviewInput() {
   const [isInputError, setIsInputError] = useState<boolean>()
   const [isFetchingError, setIsFetchingError] = useState<boolean>()
 
-  const reviewLink = useReviewStore(state => state.link)
+  const { link: reviewLink } = useReviewStore()
   const setReviewLink = useReviewStore(state => state.setLink)
   const setReviewDiff = useReviewStore(state => state.setDiff)
 
