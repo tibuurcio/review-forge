@@ -1,4 +1,4 @@
-import {Button, Flex, Radio} from '@mparticle/aquarium'
+import {Button, Flex, Radio, Typography} from '@mparticle/aquarium'
 import {useState} from 'react'
 import {Diff, GutterType, Hunk, parseDiff, ViewType} from 'react-diff-view'
 import {LocalStorageKeys} from 'src/constants/LocalStorageKeys.ts'
@@ -33,17 +33,25 @@ export function ReviewDiff() {
          </Button>
 
          {isShowingDiff && <>
-           <Radio.Group options={viewTypeOptions}
-                        value={viewType}
-                        optionType="button"
-                        onChange={x => { changeViewType(x.target.value as ViewType) }}/>
+           <div className="reviewDiff__diffControls">
+             <div>
+               <Typography.Text type="secondary">View Type: </Typography.Text>
+               <Radio.Group options={viewTypeOptions}
+                            value={viewType}
+                            optionType="button"
+                            onChange={e => { changeViewType(e.target.value as ViewType) }}/>
+             </div>
 
-           <Radio.Group options={gutterTypeOptions}
-                        value={gutterType}
-                        optionType="button"
-                        onChange={x => { changeGutterType(x.target.value as GutterType) }}/>
+             <div>
+               <Typography.Text type="secondary">Gutter Type: </Typography.Text>
+               <Radio.Group options={gutterTypeOptions}
+                            value={gutterType}
+                            optionType="button"
+                            onChange={e => { changeGutterType(e.target.value as GutterType) }}/>
+             </div>
+
+           </div>
          </>}
-         
        </span>
 
 
