@@ -1,20 +1,23 @@
 import {Button, Flex} from '@mparticle/aquarium'
 import {useState} from 'react'
-import {Diff, DiffProps, Hunk, parseDiff} from 'react-diff-view'
+import {Diff, GutterType, Hunk, parseDiff, ViewType} from 'react-diff-view'
+import {useLocalStorage} from 'src/hooks/useLocalStorage.tsx'
+import {LocalStorageKeys} from 'src/constants/LocalStorageKeys.ts'
 import {useReviewStore} from 'src/stores/ReviewStore.ts'
 
 export function ReviewDiff() {
   const { diff } = useReviewStore()
 
   const [isShowingDiff, setIsShowingDiff] = useState<boolean>()
-  const [viewType, setViewType] = useState<DiffProps['viewType']>('split')
-  const [gutterType, setGutterType] = useState<DiffProps['gutterType']>('anchor')
+  
+  const [viewType, setViewType] = useLocalStorage<ViewType>(LocalStorageKeys.diffViewType, 'split')
+  const [gutterType, setGutterType] = useLocalStorage<GutterType>(LocalStorageKeys.diffGutterType, 'anchor')
 
   const files = parseDiff(diff)
 
   const nextViewType: typeof viewType = viewType === 'split' ? 'unified' : 'split'
   const nextGutterType: typeof gutterType = gutterType === 'none' ? 'anchor' : 'none'
-
+  
   return <>
     {diff &&
      <Flex vertical className="reviewDiff">
@@ -24,17 +27,14 @@ export function ReviewDiff() {
            {isShowingDiff ? 'Hide' : 'View'} Diff
          </Button>
 
-         {isShowingDiff &&
-          <>
-            <Button onClick={e => {
-              setViewType(nextViewType)
-            }}>
-              Use View Mode&nbsp;<span className="capitalize">{nextViewType}</span>
-            </Button>
-            <Button onClick={e => {setGutterType(nextGutterType)}}>
-              Use Gutter Mode&nbsp;<span className="capitalize">{nextGutterType}</span>
-            </Button>
-          </>}
+         {isShowingDiff && <>
+           <Button onClick={e => { changeViewType() }}>
+             Use View Mode&nbsp;<span className="capitalize">{nextViewType}</span>
+           </Button>
+           <Button onClick={e => { changeGutterType() }}>
+             Use Gutter Mode&nbsp;<span className="capitalize">{nextGutterType}</span>
+           </Button>
+         </>}
          
        </span>
 
@@ -62,4 +62,15 @@ export function ReviewDiff() {
   function generateAnchorID(change): string {
     return Math.random().toString()
   }
+
+  function changeViewType(): void {
+    setViewType(nextViewType)
+    localStorage.setItem(LocalStorageKeys.diffViewType, nextViewType as string)
+  }
+
+  function changeGutterType(): void {
+    setGutterType(nextGutterType)
+    localStorage.setItem(LocalStorageKeys.diffGutterType, nextGutterType as string)
+  }
+
 }

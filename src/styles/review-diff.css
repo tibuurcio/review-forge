@@ -7,7 +7,7 @@
     overflow: auto;
     border: 1px solid var(--color-border);
     border-radius: var(--border-radius);
-    padding-top: var(--padding-lg);
+    margin-top: var(--margin-lg);
 }
 
 .reviewDiff__diffControls {
@@ -15,5 +15,4 @@
     align-items: center;
     justify-content: flex-start;
     gap: var(--padding);
-    padding-bottom: var(--padding);
 }

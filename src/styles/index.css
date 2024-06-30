@@ -8,6 +8,7 @@
 @import "review-input.css";
 @import "review-diff.css";
 @import "review-predictions.css";
+@import "prediction-card.css";
 
 #root {
     width: 100vw;
