@@ -1,23 +1,28 @@
-import {Button, Flex} from '@mparticle/aquarium'
+import {Button, Flex, Radio} from '@mparticle/aquarium'
 import {useState} from 'react'
 import {Diff, GutterType, Hunk, parseDiff, ViewType} from 'react-diff-view'
-import {useLocalStorage} from 'src/hooks/useLocalStorage.tsx'
 import {LocalStorageKeys} from 'src/constants/LocalStorageKeys.ts'
+import {useLocalStorage} from 'src/hooks/useLocalStorage.tsx'
 import {useReviewStore} from 'src/stores/ReviewStore.ts'
 
 export function ReviewDiff() {
   const { diff } = useReviewStore()
 
   const [isShowingDiff, setIsShowingDiff] = useState<boolean>()
-  
+
   const [viewType, setViewType] = useLocalStorage<ViewType>(LocalStorageKeys.diffViewType, 'split')
   const [gutterType, setGutterType] = useLocalStorage<GutterType>(LocalStorageKeys.diffGutterType, 'anchor')
 
   const files = parseDiff(diff)
 
-  const nextViewType: typeof viewType = viewType === 'split' ? 'unified' : 'split'
-  const nextGutterType: typeof gutterType = gutterType === 'none' ? 'anchor' : 'none'
-  
+  const viewTypeOptions = [
+    { label: 'Split', value: 'split' },
+    { label: 'Unified', value: 'unified' }]
+
+  const gutterTypeOptions = [
+    { label: 'None', value: 'none' },
+    { label: 'Anchor', value: 'anchor' }]
+
   return <>
     {diff &&
      <Flex vertical className="reviewDiff">
@@ -28,12 +33,15 @@ export function ReviewDiff() {
          </Button>
 
          {isShowingDiff && <>
-           <Button onClick={e => { changeViewType() }}>
-             Use View Mode&nbsp;<span className="capitalize">{nextViewType}</span>
-           </Button>
-           <Button onClick={e => { changeGutterType() }}>
-             Use Gutter Mode&nbsp;<span className="capitalize">{nextGutterType}</span>
-           </Button>
+           <Radio.Group options={viewTypeOptions}
+                        value={viewType}
+                        optionType="button"
+                        onChange={x => { changeViewType(x.target.value as ViewType) }}/>
+
+           <Radio.Group options={gutterTypeOptions}
+                        value={gutterType}
+                        optionType="button"
+                        onChange={x => { changeGutterType(x.target.value as GutterType) }}/>
          </>}
          
        </span>
@@ -63,14 +71,14 @@ export function ReviewDiff() {
     return Math.random().toString()
   }
 
-  function changeViewType(): void {
-    setViewType(nextViewType)
-    localStorage.setItem(LocalStorageKeys.diffViewType, nextViewType as string)
+  function changeViewType(type: ViewType): void {
+    setViewType(type)
+    localStorage.setItem(LocalStorageKeys.diffViewType, type as string)
   }
 
-  function changeGutterType(): void {
-    setGutterType(nextGutterType)
-    localStorage.setItem(LocalStorageKeys.diffGutterType, nextGutterType as string)
+  function changeGutterType(type: GutterType): void {
+    setGutterType(type)
+    localStorage.setItem(LocalStorageKeys.diffGutterType, type as string)
   }
 
 }
