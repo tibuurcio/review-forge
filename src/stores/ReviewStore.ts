@@ -6,4 +6,10 @@ export const useReviewStore = create(set => ({
 
   diff: '',
   setDiff: (diff: string) => set({ diff }),
+
+  fileOrder: [] as string[],
+  setFileOrder: (fileOrder: string[]) => set({ fileOrder }),
+
+  fileOrderReason: '',
+  setFileOrderReason: (fileOrderReason: string) => set({ fileOrderReason }),
 }))
