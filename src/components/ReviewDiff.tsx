@@ -1,6 +1,7 @@
-import {Button, Flex, Radio, Typography} from '@mparticle/aquarium'
-import {ReactElement, useCallback, useMemo, useState} from 'react'
-import {Diff, GutterOptions, GutterType, Hunk, parseDiff, ViewType} from 'react-diff-view'
+import {Alert, Button, Flex, Radio, Typography} from '@mparticle/aquarium'
+import {ReactElement, useCallback, useEffect, useMemo, useState} from 'react'
+import {Diff, getChangeKey, ChangeData, GutterOptions, GutterType, Hunk, parseDiff, ViewType, HunkData} from 'react-diff-view'
+import {DiffAiComment} from 'src/components/Diff/DiffAiComment.tsx'
 import DiffCommentTrigger from 'src/components/Diff/DiffCommentTrigger.tsx'
 import DiffComment from 'src/components/Diff/DiffComment.tsx'
 import {LocalStorageKeys} from 'src/constants/LocalStorageKeys.ts'
@@ -31,8 +32,11 @@ export function ReviewDiff() {
   const renderGutter = useCallback(generateRenderGutter,
                                    [addComment, viewType])
 
-  const diffWidgets = useMemo(generateDiffWidgets,
+  const diffWidgets = useMemo(() => generateDiffWidgets(files.flatMap(({ hunks }) => hunks)),
                               [comments, saveEdit, editComment, cancelEdit, deleteComment])
+
+
+  useEffect(addAiComments, [diff])
 
   return <>
     {diff &&
@@ -74,6 +78,7 @@ export function ReviewDiff() {
      </Flex>}
   </>
 
+
   function renderFile({ oldRevision, newRevision, type, hunks }) {
     return (
       <Diff key={oldRevision + '-' + newRevision}
@@ -88,15 +93,16 @@ export function ReviewDiff() {
       </Diff>)
   }
 
-
   function generateAnchorID(change): string {
     return Math.random().toString()
   }
+
 
   function changeViewType(type: ViewType): void {
     setViewType(type)
     localStorage.setItem(LocalStorageKeys.diffViewType, type as string)
   }
+
 
   function changeGutterType(type: GutterType): void {
     setGutterType(type)
@@ -109,11 +115,29 @@ export function ReviewDiff() {
     return wrapInAnchor(renderDefault())
   }
 
-  function generateDiffWidgets() {
-    return comments.reduce<Record<string, ReactElement[]>>(
+  function generateDiffWidgets(hunks: HunkData[]) {
+    const changes: ChangeData[] = hunks.reduce((result, { changes }) => [...result, ...changes], [])
+    const longLines = changes.filter(({ content }) => content.length > 120)
+    const longLinesWidgets = longLines.reduce(
+      (widgets, change) => {
+        const changeKey = getChangeKey(change)
+
+        return {
+          ...widgets,
+          [changeKey]: <Alert banner type="warning" message="Line too long [over 120 chars]" showIcon={false}/>,
+        }
+      }, {})
+
+
+    const aiCommentWidgets = comments.reduce<Record<string, ReactElement[]>>(
       (widgets, comment) => {
         if (!widgets[comment.changeKey]) widgets[comment.changeKey] = []
+
+        const isAiComment = comment.content.startsWith('AI Comment - ')
+
         widgets[comment.changeKey].push(
+          isAiComment ?
+          <DiffAiComment message={comment.content.replace('AI Comment - ', '')}/> :
           <DiffComment
             key={comment.id}
             id={comment.id}
@@ -123,9 +147,29 @@ export function ReviewDiff() {
             onSave={saveEdit}
             onEdit={editComment}
             onCancel={cancelEdit}
-            onDelete={deleteComment}/>)
+            onDelete={deleteComment}/>
+        )
         return widgets
-      }, {}) as const
+      }, {})
+
+
+    return { ...longLinesWidgets, ...aiCommentWidgets }
+  }
+
+
+  function addAiComments(): void {
+    if (!diff) return
+    const lineNumber = 15
+    const content = 'AI Comment - hello world'
+
+    const changeKey = getChangeKey({
+                                     type: 'normal',
+                                     content: content,
+                                     newLineNumber: lineNumber,
+                                     oldLineNumber: lineNumber,
+                                     isNormal: true
+                                   })
+    addComment(changeKey, content)
   }
 
 }

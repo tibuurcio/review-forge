@@ -13,7 +13,7 @@ interface DiffCommentProps {
   onDelete: (id: string) => void;
 }
 
-export default function Comment({ id, content, state, time, onSave, onEdit, onCancel, onDelete }: DiffCommentProps) {
+export default function DiffComment({ id, content, state, time, onSave, onEdit, onCancel, onDelete }: DiffCommentProps) {
   return (
     <div style={{ padding: Padding }}>
       {
