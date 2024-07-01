@@ -21,7 +21,7 @@ app.get('/reviewDiff/:pull_url', async (req: express.Request, res: express.Respo
   if (parsedUrl) {
     ({ owner, repo, pull_number } = parsedUrl)
   } else {
-    throw new Error('Invalid GitHub URL')
+    res.status(404).send('Invalid GitHub URL')
   }
 
 
@@ -53,41 +53,27 @@ app.get('/reviewDiff/:pull_url', async (req: express.Request, res: express.Respo
 
 
 app.get('/assist/:predictionId', async (req: express.Request, res: express.Response) => {
-debugger
-
   const predictionId: string = req.params.predictionId
   const prediction = Predictions.find(prediction => prediction.id === predictionId)
   if (!prediction) return res.status(404).send('Prediction not found')
-  
+
   const openai = new OpenAI({
                               organization: process.env.OPENAI_ORG_KEY,
                               project: process.env.OPENAI_PROJECT_KEY,
                             })
 
-  // const request = req.body
-  // debugger
-
   const completion = await openai.chat.completions.create({
                                                             messages: [
-                                                              { role: 'system', content: 'You are an expert professional software engineer, specializing in modern frontend technologies and React. Your task is to provide a clear and concise code review for the provided diff' },
+                                                              {
+                                                                role: 'system',
+                                                                content: 'You are an expert professional software engineer, specializing in modern frontend technologies and React. Your task is to provide a clear and concise code review for the provided diff'
+                                                              },
                                                               { role: 'user', content: prediction.prompt }
                                                             ],
                                                             model: 'gpt-3.5-turbo',
                                                           })
-  // debugger
 
-  // things to do today
-  // creating the prompt, getting structured json response, or possibly markdown 
-  
-  // then create different types of prompts
-  
-  // give an example of input and output prs
-  
-  // fine-tuning it to our coding standards and values
-  
-  
-  debugger
-  let content = completion.choices[0].message.content
+  const content = completion.choices[0].message.content
 
   res.send(content)
 })
@@ -104,8 +90,6 @@ function configureApp(): express.Application {
 
   return app
 }
-
-
 
 
 interface Prediction {
