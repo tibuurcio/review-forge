@@ -20,6 +20,7 @@ export function ReviewInput() {
                     size="large"
                     autoFocus
                     enterButton="Forge Review"
+                    placeholder="say this is a test"
                     value={reviewLink}
                     loading={isFetching}
                     status={isInputError ? 'error' : undefined}
