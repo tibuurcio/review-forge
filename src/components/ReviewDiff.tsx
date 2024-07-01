@@ -1,23 +1,25 @@
-import {Alert, Button, Flex, Radio, Typography} from '@mparticle/aquarium'
+import {Button, Flex, Radio, Typography} from '@mparticle/aquarium'
+import {Padding} from '@mparticle/aquarium/dist/style.ts'
 import {ReactElement, useCallback, useEffect, useMemo, useState} from 'react'
-import {Diff, getChangeKey, ChangeData, GutterOptions, GutterType, Hunk, parseDiff, ViewType, HunkData} from 'react-diff-view'
+import {Diff, FileData, getChangeKey, GutterOptions, GutterType, Hunk, parseDiff, ViewType} from 'react-diff-view'
 import {DiffAiComment} from 'src/components/Diff/DiffAiComment.tsx'
 import DiffCommentTrigger from 'src/components/Diff/DiffCommentTrigger.tsx'
-import DiffComment from 'src/components/Diff/DiffComment.tsx'
+import {AiCommentMock} from 'src/constants/AiCommentMock.ts'
 import {LocalStorageKeys} from 'src/constants/LocalStorageKeys.ts'
 import {useDiffComments} from 'src/hooks/useDiffComments.ts'
 import {useLocalStorage} from 'src/hooks/useLocalStorage.tsx'
 import {useReviewStore} from 'src/stores/ReviewStore.ts'
 
 export function ReviewDiff() {
-  const { diff } = useReviewStore()
+  const { diff, fileOrder, setFileOrder, setFileOrderReason } = useReviewStore()
 
   const [isShowingDiff, setIsShowingDiff] = useState<boolean>()
 
   const [viewType, setViewType] = useLocalStorage<ViewType>(LocalStorageKeys.diffViewType, 'split')
   const [gutterType, setGutterType] = useLocalStorage<GutterType>(LocalStorageKeys.diffGutterType, 'anchor')
 
-  const files = parseDiff(diff)
+  const files = parseDiff(diff).sort(sortByFileOrder)
+
 
   const viewTypeOptions = [
     { label: 'Split', value: 'split' },
@@ -32,7 +34,7 @@ export function ReviewDiff() {
   const renderGutter = useCallback(generateRenderGutter,
                                    [addComment, viewType])
 
-  const diffWidgets = useMemo(() => generateDiffWidgets(files.flatMap(({ hunks }) => hunks)),
+  const diffWidgets = useMemo(() => generateDiffWidgets(files),
                               [comments, saveEdit, editComment, cancelEdit, deleteComment])
 
 
@@ -79,8 +81,10 @@ export function ReviewDiff() {
   </>
 
 
-  function renderFile({ oldRevision, newRevision, type, hunks }) {
-    return (
+  function renderFile(file: FileData) {
+    const { oldRevision, newRevision, type, hunks } = file
+    return (<>
+      <Typography.Text className="reviewDiff__fileName" type="secondary">New Path - {file.newPath}</Typography.Text>
       <Diff key={oldRevision + '-' + newRevision}
             viewType={viewType}
             diffType={type}
@@ -90,7 +94,8 @@ export function ReviewDiff() {
             renderGutter={renderGutter}
             widgets={diffWidgets}>
         {hunks => hunks.map(hunk => <Hunk key={hunk.content} hunk={hunk}/>)}
-      </Diff>)
+      </Diff>
+    </>)
   }
 
   function generateAnchorID(change): string {
@@ -115,61 +120,70 @@ export function ReviewDiff() {
     return wrapInAnchor(renderDefault())
   }
 
-  function generateDiffWidgets(hunks: HunkData[]) {
-    const changes: ChangeData[] = hunks.reduce((result, { changes }) => [...result, ...changes], [])
-    const longLines = changes.filter(({ content }) => content.length > 120)
-    const longLinesWidgets = longLines.reduce(
-      (widgets, change) => {
-        const changeKey = getChangeKey(change)
+  function generateDiffWidgets(files: FileData[]) {
 
-        return {
-          ...widgets,
-          [changeKey]: <Alert banner type="warning" message="Line too long [over 120 chars]" showIcon={false}/>,
-        }
-      }, {})
+    let aiCommentWidgets: Record<string, React.ReactElement[]>
 
+    files.forEach(file => {
 
-    const aiCommentWidgets = comments.reduce<Record<string, ReactElement[]>>(
-      (widgets, comment) => {
-        if (!widgets[comment.changeKey]) widgets[comment.changeKey] = []
+      aiCommentWidgets = comments.reduce<Record<string, ReactElement[]>>(
+        (widgets, comment) => {
+          if (!widgets[comment.changeKey]) widgets[comment.changeKey] = []
 
-        const isAiComment = comment.content.startsWith('AI Comment - ')
+          const fileName = file.newPath
 
-        widgets[comment.changeKey].push(
-          isAiComment ?
-          <DiffAiComment message={comment.content.replace('AI Comment - ', '')}/> :
-          <DiffComment
-            key={comment.id}
-            id={comment.id}
-            content={comment.content}
-            state={comment.state}
-            time={comment.time}
-            onSave={saveEdit}
-            onEdit={editComment}
-            onCancel={cancelEdit}
-            onDelete={deleteComment}/>
-        )
-        return widgets
-      }, {})
+          const isAiComment = comment.content.startsWith(fileName)
+          const message = comment.content.replace(fileName, '')
 
+          //todo: something strange is going on here, not working as expected
+          if (!isAiComment) {
+            widgets[comment.changeKey].push(<DiffAiComment message={message}/>)
+          }
 
-    return { ...longLinesWidgets, ...aiCommentWidgets }
+          return widgets
+        }, {})
+    })
+
+    return aiCommentWidgets
   }
 
 
   function addAiComments(): void {
     if (!diff) return
-    const lineNumber = 15
-    const content = 'AI Comment - hello world'
 
-    const changeKey = getChangeKey({
-                                     type: 'normal',
-                                     content: content,
-                                     newLineNumber: lineNumber,
-                                     oldLineNumber: lineNumber,
-                                     isNormal: true
-                                   })
-    addComment(changeKey, content)
+    const assistedCommentsResponse = AiCommentMock
+
+
+    const fileOrder = assistedCommentsResponse.files.map(file => file.diffFile[0])
+    setFileOrder(fileOrder)
+
+    setFileOrderReason(assistedCommentsResponse.orderingReason)
+
+
+    assistedCommentsResponse.files.forEach(file => {
+      file.comments.forEach(comment => {
+        // const fileName = extractFilenameFromDiffName(file.diffFile) as string
+        const content = file.diffFile[0] + comment.comment
+
+        postGeneratedComment(comment.lineNumber, content)
+      })
+    })
+
+
+    function postGeneratedComment(lineNumber: number, content: string) {
+      const changeKey = getChangeKey({
+                                       type: 'normal',
+                                       content: content,// add file name
+                                       newLineNumber: lineNumber,
+                                       oldLineNumber: lineNumber,
+                                       isNormal: true
+                                     })
+      addComment(changeKey, content)
+    }
+  }
+
+  function sortByFileOrder(a: FileData, b: FileData) {
+    return fileOrder.indexOf(a.newPath) - fileOrder.indexOf(b.newPath)
   }
 
 }

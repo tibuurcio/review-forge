@@ -4,7 +4,7 @@ import {useState} from 'react'
 import {useReviewStore} from 'src/stores/ReviewStore.ts'
 
 export function ReviewOrder() {
-  const { fileOrder, diff } = useReviewStore()
+  const { fileOrder, diff, fileOrderReason } = useReviewStore()
 
   const [isShowingOrder, setIsShowingOrder] = useState<boolean>()
 
@@ -14,13 +14,15 @@ export function ReviewOrder() {
 
        <span>
          <Flex align="baseline" gap={MarginSm}>
-         <Button onClick={e => setIsShowingOrder(!isShowingOrder)}
-                 style={{ marginBottom: Margin }}>
-           {isShowingOrder ? 'Hide' : 'View'} File Order
-         </Button>
+           <Button onClick={e => setIsShowingOrder(!isShowingOrder)}>
+            <Typography.Text>{isShowingOrder ? 'Hide' : 'View'} File Order</Typography.Text>
+           </Button>
            {isShowingOrder &&
-            <Typography.Text type="secondary">This is the suggested order to review and understand this PR:</Typography.Text>}
+            <Typography.Text type="secondary">This is the suggested review order:</Typography.Text>}
          </Flex>
+
+         {isShowingOrder &&
+          <Typography.Title level={4} type="secondary" style={{ marginTop: 0 }}>{fileOrderReason}</Typography.Title>}
 
          {isShowingOrder && <>
            <div className="reviewFiles__checkboxScroll">

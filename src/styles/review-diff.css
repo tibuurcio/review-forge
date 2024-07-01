@@ -16,3 +16,13 @@
     justify-content: flex-start;
     gap: var(--padding);
 }
+
+.reviewDiff__fileName {
+    position: sticky;
+    top: 0;
+    display: flex;
+    z-index: 1;
+    width: 100%;
+    padding: var(--padding-sm) var(--padding);
+    background-color: white;
+}
