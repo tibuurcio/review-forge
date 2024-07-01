@@ -21,7 +21,7 @@ app.get('/reviewDiff/:pull_url', async (req: express.Request, res: express.Respo
   if (parsedUrl) {
     ({ owner, repo, pull_number } = parsedUrl)
   } else {
-    res.status(404).send('Invalid GitHub URL')
+    return res.status(404).send('Invalid GitHub URL')
   }
 
 
