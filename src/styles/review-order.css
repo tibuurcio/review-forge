@@ -1,0 +1,16 @@
+.reviewOrder .ant-checkbox-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.reviewFiles__checkboxGroup .ant-checkbox-group-item:not(:last-of-type) {
+    margin-bottom: var(--margin-xxs) !important;
+}
+
+.reviewFiles__checkboxScroll {
+    max-height: 200px;
+    overflow-y: auto;
+    padding: var(--padding);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--color-border-secondary);
+}

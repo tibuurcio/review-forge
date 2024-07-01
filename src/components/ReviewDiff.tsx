@@ -1,7 +1,10 @@
 import {Button, Flex, Radio, Typography} from '@mparticle/aquarium'
-import {useState} from 'react'
-import {Diff, GutterType, Hunk, parseDiff, ViewType} from 'react-diff-view'
+import {ReactElement, useCallback, useMemo, useState} from 'react'
+import {Diff, GutterOptions, GutterType, Hunk, parseDiff, ViewType} from 'react-diff-view'
+import DiffCommentTrigger from 'src/components/Diff/DiffCommentTrigger.tsx'
+import DiffComment from 'src/components/Diff/DiffComment.tsx'
 import {LocalStorageKeys} from 'src/constants/LocalStorageKeys.ts'
+import {useDiffComments} from 'src/hooks/useDiffComments.ts'
 import {useLocalStorage} from 'src/hooks/useLocalStorage.tsx'
 import {useReviewStore} from 'src/stores/ReviewStore.ts'
 
@@ -22,6 +25,14 @@ export function ReviewDiff() {
   const gutterTypeOptions = [
     { label: 'None', value: 'none' },
     { label: 'Anchor', value: 'anchor' }]
+
+  const [comments, { addComment, editComment, saveEdit, cancelEdit, deleteComment }] = useDiffComments()
+
+  const renderGutter = useCallback(generateRenderGutter,
+                                   [addComment, viewType])
+
+  const diffWidgets = useMemo(generateDiffWidgets,
+                              [comments, saveEdit, editComment, cancelEdit, deleteComment])
 
   return <>
     {diff &&
@@ -70,10 +81,13 @@ export function ReviewDiff() {
             diffType={type}
             hunks={hunks}
             gutterType={gutterType}
-            generateAnchorID={generateAnchorID}>
+            generateAnchorID={generateAnchorID}
+            renderGutter={renderGutter}
+            widgets={diffWidgets}>
         {hunks => hunks.map(hunk => <Hunk key={hunk.content} hunk={hunk}/>)}
       </Diff>)
   }
+
 
   function generateAnchorID(change): string {
     return Math.random().toString()
@@ -87,6 +101,31 @@ export function ReviewDiff() {
   function changeGutterType(type: GutterType): void {
     setGutterType(type)
     localStorage.setItem(LocalStorageKeys.diffGutterType, type as string)
+  }
+
+  function generateRenderGutter({ change, side, inHoverState, renderDefault, wrapInAnchor }: GutterOptions) {
+    const canComment = inHoverState && (viewType === 'split' || side === 'new')
+    if (canComment) return <DiffCommentTrigger change={change} onClick={addComment}/>
+    return wrapInAnchor(renderDefault())
+  }
+
+  function generateDiffWidgets() {
+    return comments.reduce<Record<string, ReactElement[]>>(
+      (widgets, comment) => {
+        if (!widgets[comment.changeKey]) widgets[comment.changeKey] = []
+        widgets[comment.changeKey].push(
+          <DiffComment
+            key={comment.id}
+            id={comment.id}
+            content={comment.content}
+            state={comment.state}
+            time={comment.time}
+            onSave={saveEdit}
+            onEdit={editComment}
+            onCancel={cancelEdit}
+            onDelete={deleteComment}/>)
+        return widgets
+      }, {}) as const
   }
 
 }

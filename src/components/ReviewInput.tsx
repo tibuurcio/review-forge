@@ -1,5 +1,4 @@
 import {Input, Typography} from '@mparticle/aquarium'
-import axios from 'axios'
 import {useState} from 'react'
 import {ReviewApi} from 'src/api/ReviewApi.ts'
 import {useReviewStore} from 'src/stores/ReviewStore.ts'
