@@ -1,8 +1,9 @@
-import {Button, Space, Typography} from '@mparticle/aquarium'
+import {Button, Dropdown, Space, Typography} from '@mparticle/aquarium'
 import {ReviewDiff} from 'src/components/ReviewDiff.tsx'
 import {ReviewInput} from 'src/components/ReviewInput.tsx'
 import {ReviewOrder} from 'src/components/ReviewOrder.tsx'
 import {ReviewInsights} from 'src/components/ReviewInsights.tsx'
+import {AiTypes} from 'src/constants/AiTypes.ts'
 import {useReviewStore} from 'src/stores/ReviewStore.ts'
 
 export const AppContent = () => {
@@ -34,6 +35,8 @@ export const AppContent = () => {
           <Button onClick={e => setIsShowingInsights(!isShowingInsights)}>
             <Typography.Text>{isShowingInsights ? 'Hide' : 'View'} Prediction Insights</Typography.Text>
           </Button>
+
+          <Dropdown menu={{ items: AiTypes }}><Button>Change Model</Button></Dropdown>
         </span>}
 
         {isShowingDiff && <ReviewDiff/>}
