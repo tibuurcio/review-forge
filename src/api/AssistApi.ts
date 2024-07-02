@@ -1,4 +1,3 @@
-import axios from 'axios'
 import {BaseApi} from 'src/api/BaseApi.ts'
 import {AssistedCommentsResponse} from 'src/interfaces/AssistedCommentsResponse'
 
@@ -13,15 +12,22 @@ async function getPrediction(predictionId: string): Promise<string> {
 }
 
 async function getAiComments(reviewLink: string): Promise<AssistedCommentsResponse> {
-  // return await BaseApi.get(`comments`)
-  return await axios.post(`http://34.138.3.116:8080/analyze?url=${reviewLink}&reload=true`)
-    .then(res => res.data as Array<{ component: string; payload: string; }>)
-    .then(components => {
-      const payload = components.filter(component => component.component === 'insights')[0]?.payload
-      return JSON.parse(payload) as AssistedCommentsResponse;
-    });
+  const url = 'analyze'
+  // const url = 'comment'
+  const query = `url=${reviewLink}&reload=true`
+  const body = {}
+
+  return await BaseApi.post<{ component: string, payload: AssistedCommentsResponse }[]>(url, query, body)
+    .then(data => {
+      let insightsComponent = data.find(d => d.component === 'insights')
+      return JSON.parse(insightsComponent?.payload as any) as AssistedCommentsResponse
+    })
 }
 
 async function analyzePR(reviewLink: string): Promise<{ component: string, payload: string }[]> {
-  return await axios.post(`http://34.138.3.116:8080/analyze?url=${reviewLink}`)
+  const url = 'analyze'
+  const query = `url=${reviewLink}&reload=true`
+  const body = {}
+
+  return await BaseApi.post(url, query, body)
 }
