@@ -3,7 +3,7 @@ import {Predictions} from 'src/constants/Predictions.ts'
 import {useReviewStore} from 'src/stores/ReviewStore.ts'
 import {PredictionCard} from 'src/components/PredictionCard.tsx'
 
-export function ReviewSummary() {
+export function ReviewInsights() {
   const { diff } = useReviewStore()
 
   return <>

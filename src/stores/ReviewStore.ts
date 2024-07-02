@@ -13,8 +13,8 @@ export const useReviewStore = create(set => ({
   isShowingOrder: '',
   setIsShowingOrder: (isShowingOrder: boolean) => set({ isShowingOrder }),
 
-  isShowingSummary: '',
-  setIsShowingSummary: (isShowingSummary: boolean) => set({ isShowingSummary }),
+  isShowingInsights: '',
+  setIsShowingInsights: (isShowingInsights: boolean) => set({ isShowingInsights }),
 
   fileOrder: [] as string[],
   setFileOrder: (fileOrder: string[]) => set({ fileOrder }),

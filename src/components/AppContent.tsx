@@ -2,7 +2,7 @@ import {Button, Space, Typography} from '@mparticle/aquarium'
 import {ReviewDiff} from 'src/components/ReviewDiff.tsx'
 import {ReviewInput} from 'src/components/ReviewInput.tsx'
 import {ReviewOrder} from 'src/components/ReviewOrder.tsx'
-import {ReviewSummary} from 'src/components/ReviewSummary.tsx'
+import {ReviewInsights} from 'src/components/ReviewInsights.tsx'
 import {useReviewStore} from 'src/stores/ReviewStore.ts'
 
 export const AppContent = () => {
@@ -10,10 +10,10 @@ export const AppContent = () => {
     diff,
     isShowingDiff,
     isShowingOrder,
-    isShowingSummary,
+    isShowingInsights,
     setIsShowingDiff,
     setIsShowingOrder,
-    setIsShowingSummary
+    setIsShowingInsights
   } = useReviewStore()
   return <>
     <div className="app__content">
@@ -21,23 +21,24 @@ export const AppContent = () => {
       <Space direction="vertical" style={{ width: '100%', height: '100%' }} size="large">
         <ReviewInput/>
 
-        {diff && <span className="reviewDiff__diffControls">
+        {diff &&
+         <span className="reviewDiff__diffControls">
           <Button onClick={e => setIsShowingDiff(!isShowingDiff)}>
-            <Typography.Text>{isShowingOrder ? 'Hide' : 'View'} Diff</Typography.Text>
+            <Typography.Text>{isShowingDiff ? 'Hide' : 'View'} Diff</Typography.Text>
           </Button>
 
           <Button onClick={e => setIsShowingOrder(!isShowingOrder)}>
             <Typography.Text>{isShowingOrder ? 'Hide' : 'View'} File Order</Typography.Text>
           </Button>
 
-          <Button onClick={e => setIsShowingSummary(!isShowingSummary)}>
-            <Typography.Text>{isShowingSummary ? 'Hide' : 'View'} Prediction Summary</Typography.Text>
+          <Button onClick={e => setIsShowingInsights(!isShowingInsights)}>
+            <Typography.Text>{isShowingInsights ? 'Hide' : 'View'} Prediction Insights</Typography.Text>
           </Button>
         </span>}
 
         {isShowingDiff && <ReviewDiff/>}
         {isShowingOrder && <ReviewOrder/>}
-        {isShowingSummary && <ReviewSummary/>}
+        {isShowingInsights && <ReviewInsights/>}
       </Space>
     </div>
   </>
