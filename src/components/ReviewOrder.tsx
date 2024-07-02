@@ -1,12 +1,9 @@
-import {Button, Checkbox, Typography, Flex, Space} from '@mparticle/aquarium'
-import {Margin, MarginSm} from '@mparticle/aquarium/dist/style.ts'
-import {useState} from 'react'
+import {Checkbox, Flex, Typography} from '@mparticle/aquarium'
+import {MarginSm} from '@mparticle/aquarium/dist/style.ts'
 import {useReviewStore} from 'src/stores/ReviewStore.ts'
 
 export function ReviewOrder() {
-  const { fileOrder, diff, fileOrderReason } = useReviewStore()
-
-  const [isShowingOrder, setIsShowingOrder] = useState<boolean>()
+  const { fileOrder, diff, fileOrderReason, isShowingOrder } = useReviewStore()
 
   return <>
     {fileOrder && diff &&
@@ -14,9 +11,6 @@ export function ReviewOrder() {
 
        <span>
          <Flex align="baseline" gap={MarginSm}>
-           <Button onClick={e => setIsShowingOrder(!isShowingOrder)}>
-            <Typography.Text>{isShowingOrder ? 'Hide' : 'View'} File Order</Typography.Text>
-           </Button>
            {isShowingOrder &&
             <Typography.Text type="secondary">This is the suggested review order:</Typography.Text>}
          </Flex>

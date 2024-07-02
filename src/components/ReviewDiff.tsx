@@ -10,9 +10,7 @@ import {AssistedCommentsResponse} from 'src/interfaces/AssistedCommentsResponse'
 import {useReviewStore} from 'src/stores/ReviewStore.ts'
 
 export function ReviewDiff() {
-  const { diff, fileOrder, setFileOrder, setFileOrderReason } = useReviewStore()
-
-  const [isShowingDiff, setIsShowingDiff] = useState<boolean>()
+  const { diff, fileOrder, isShowingDiff, setFileOrder, setFileOrderReason } = useReviewStore()
 
   const [viewType, setViewType] = useLocalStorage<ViewType>(LocalStorageKeys.diffViewType, 'split')
   const [gutterType, setGutterType] = useLocalStorage<GutterType>(LocalStorageKeys.diffGutterType, 'anchor')
@@ -43,33 +41,26 @@ export function ReviewDiff() {
     {diff &&
      <Flex vertical className="reviewDiff">
 
-       <span className="reviewDiff__diffControls">
-         <Button onClick={e => setIsShowingDiff(!isShowingDiff)}>
-           {isShowingDiff ? 'Hide' : 'View'} Diff
-         </Button>
-
-         {isShowingDiff && <>
-           <div className="reviewDiff__diffControls">
-             <div>
-               <Typography.Text type="secondary">View Type: </Typography.Text>
-               <Radio.Group options={viewTypeOptions}
-                            value={viewType}
-                            optionType="button"
-                            onChange={e => { changeViewType(e.target.value as ViewType) }}/>
-             </div>
-
-             <div>
-               <Typography.Text type="secondary">Gutter Type: </Typography.Text>
-               <Radio.Group options={gutterTypeOptions}
-                            value={gutterType}
-                            optionType="button"
-                            onChange={e => { changeGutterType(e.target.value as GutterType) }}/>
-             </div>
-
+       {isShowingDiff && <>
+         <div className="reviewDiff__diffControls">
+           <div>
+             <Typography.Text type="secondary">View Type: </Typography.Text>
+             <Radio.Group options={viewTypeOptions}
+                          value={viewType}
+                          optionType="button"
+                          onChange={e => { changeViewType(e.target.value as ViewType) }}/>
            </div>
-         </>}
-       </span>
 
+           <div>
+             <Typography.Text type="secondary">Gutter Type: </Typography.Text>
+             <Radio.Group options={gutterTypeOptions}
+                          value={gutterType}
+                          optionType="button"
+                          onChange={e => { changeGutterType(e.target.value as GutterType) }}/>
+           </div>
+
+         </div>
+       </>}
 
        {isShowingDiff && <>
          <div className="reviewDiff__diffFiles">
