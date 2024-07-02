@@ -7,8 +7,9 @@ export const AssistApi = {
 } as const
 
 async function getInsight(reviewLink: string, insightId: string): Promise<string> {
+  const random = Math.round((Math.random())) % 10 === 0
   const endpoint = `analyze/${insightId}`
-  const query = `url=${reviewLink}&reload=true`
+  const query = `url=${reviewLink}&refresh=${random}`
   return BaseApi.get(endpoint, query)
 }
 
