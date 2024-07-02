@@ -1,6 +1,9 @@
-import type {Prediction} from 'src/constants/Prediction.ts'
+export interface Insight {
+  id: string
+  display: string
+}
 
-export const Predictions: Prediction[] = [
+export const InsightTypes: Insight[] = [
   {
     id: 'summary',
     display: 'Summary'
@@ -21,4 +24,4 @@ export const Predictions: Prediction[] = [
     id: 'security',
     display: 'Security'
   },
-]
+] as const
