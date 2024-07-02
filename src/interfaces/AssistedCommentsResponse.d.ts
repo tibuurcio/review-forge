@@ -8,7 +8,6 @@ export interface AssistedCommentsResponse {
     comments: Array<{
       lineContent: string;
       comment: string;
-      type: 'code-readability' | 'performance-improvements' | 'tests' | 'security' | 'suggestion';
     }>
   }>;
 }
