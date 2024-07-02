@@ -36,8 +36,11 @@ export const AppContent = () => {
           </Button>
         </span>}
 
-        {isShowingDiff && <ReviewDiff/>}
-        {isShowingOrder && <ReviewOrder/>}
+        {isShowingDiff && <>
+          <ReviewDiff/>
+          <ReviewOrder/>
+        </>}
+        {/* {isShowingOrder && } */}
         {isShowingInsights && <ReviewInsights/>}
       </Space>
     </div>

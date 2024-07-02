@@ -6,7 +6,7 @@ export interface AssistedCommentsResponse {
     // newPath: string;
     diffFile: string;
     comments: Array<{
-      lineNumber: number;
+      lineContent: string;
       comment: string;
       type: 'code-readability' | 'performance-improvements' | 'tests' | 'security' | 'suggestion';
     }>

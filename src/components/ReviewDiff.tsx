@@ -8,10 +8,11 @@ import {useLocalStorage} from 'src/hooks/useLocalStorage.tsx'
 import {AssistedCommentsResponse} from 'src/interfaces/AssistedCommentsResponse'
 import {useCommentsStore} from 'src/stores/CommentsStore.ts'
 import {useReviewStore} from 'src/stores/ReviewStore.ts'
+import { DiffAiComment } from './Diff/DiffAiComment'
 
 export function ReviewDiff() {
-  const { link, diff} = useReviewStore()
-  const { aiComments, } = useCommentsStore()
+  const { link, diff } = useReviewStore()
+  const { aiComments } = useCommentsStore()
 
   const [viewType, setViewType] = useLocalStorage<ViewType>(LocalStorageKeys.diffViewType, 'split')
   const [gutterType, setGutterType] = useLocalStorage<GutterType>(LocalStorageKeys.diffGutterType, 'anchor')
@@ -83,10 +84,38 @@ export function ReviewDiff() {
             gutterType={gutterType}
             generateAnchorID={generateAnchorID}
             renderGutter={renderGutter}
-            widgets={diffWidgets}>
+            widgets={getWidgets(file)}>
         {hunks => hunks.map(hunk => <Hunk key={hunk.content} hunk={hunk}/>)}
       </Diff>
     </>)
+  }
+
+  function getWidgets(file: FileData) {
+    const comments = (aiComments as AssistedCommentsResponse).files.find(prFile => prFile.diffFile.includes(file.newPath))?.comments ?? [];
+    const commentsPerLine = comments.reduce((previous, currentComment) => {
+      return {
+        ...previous,
+        [currentComment.lineContent.trim()]: currentComment.comment
+      }
+    }, {});
+
+    const changes = file.hunks.reduce((result, {changes}) => [...result, ...changes], []);
+    const commentLines = changes.filter(({ content }) => {
+      return commentsPerLine[content.trim()] !== undefined
+    });
+    
+    console.log({ commentsPerLine, changes, commentLines, file });
+    return commentLines.reduce(
+        (widgets, change) => {
+            const changeKey = getChangeKey(change);
+
+            return {
+                ...widgets,
+                [changeKey]: <DiffAiComment message={commentsPerLine[change.content.trim()]} />,
+            };
+        },
+        {}
+    );
   }
 
   function generateAnchorID(change): string {
@@ -112,8 +141,21 @@ export function ReviewDiff() {
   }
 
   function generateDiffWidgets(files: FileData[]) {
-
     let aiCommentWidgets: Record<string, React.ReactElement[]> = {}
+
+    // const changes = hunks.reduce((result, {changes}) => [...result, ...changes], []);
+    // const longLines = changes.filter(({content}) => content.length > 120);
+    // return longLines.reduce(
+    //     (widgets, change) => {
+    //         const changeKey = getChangeKey(change);
+
+    //         return {
+    //             ...widgets,
+    //             [changeKey]: <span className="error">Line too long</span>,
+    //         };
+    //     },
+    //     {}
+    // );
 
     // files.forEach(file => {
     //   aiCommentWidgets = comments.reduce<Record<string, ReactElement[]>>(
@@ -135,7 +177,7 @@ export function ReviewDiff() {
     //     }, {})
     // })
 
-    return aiCommentWidgets
+    // return aiCommentWidgets
   }
 
   async function addAiComments(link: string): Promise<void> {

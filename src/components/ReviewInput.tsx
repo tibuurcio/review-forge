@@ -10,7 +10,7 @@ export function ReviewInput() {
   const [isInputError, setIsInputError] = useState<boolean>()
   const [isFetchingError, setIsFetchingError] = useState<boolean>()
 
-  const { link: reviewLink, setReviewLink, setDiff } = useReviewStore()
+  const { link: reviewLink, setLink: setReviewLink, setDiff } = useReviewStore()
   const { setAiComments } = useCommentsStore()
 
   return <>
