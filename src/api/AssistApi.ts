@@ -6,19 +6,14 @@ export const AssistApi = {
   getAiComments,
 } as const
 
-async function getInsight(reviewLink: string, predictionId: string): Promise<string> {
-  return await BaseApi.get(`analyze/${predictionId}`)
+async function getInsight(reviewLink: string, insightId: string): Promise<string> {
+  const endpoint = `analyze/${insightId}`
+  const query = `url=${reviewLink}`
+  return await BaseApi.get(endpoint, query)
 }
 
 async function getAiComments(reviewLink: string): Promise<AssistedCommentsResponse> {
-  const url = 'analyze'
-  // const url = 'comment'
+  const endpoint = 'comments'
   const query = `url=${reviewLink}&reload=true`
-  const body = {}
-
-  return await BaseApi.post<{ component: string, payload: AssistedCommentsResponse }[]>(url, query, body)
-    .then(data => {
-      let insightsComponent = data.find(d => d.component === 'insights')
-      return JSON.parse(insightsComponent?.payload as any) as AssistedCommentsResponse
-    })
+  return await BaseApi.get(endpoint, query)
 }

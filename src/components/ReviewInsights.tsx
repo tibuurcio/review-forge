@@ -1,12 +1,13 @@
 import {Button, Center, Collapse, ICollapseProps, Result, Skeleton, Typography} from '@mparticle/aquarium'
 import {MpBrandSecondary3} from '@mparticle/aquarium/dist/style.ts'
 import {useState} from 'react'
+import Markdown from 'react-markdown'
 import {AssistApi} from 'src/api/AssistApi.ts'
-import {Insight, InsightTypes} from 'src/constants/InsightTypes.ts'
+import {InsightTypes} from 'src/constants/InsightTypes.ts'
 import {useReviewStore} from 'src/stores/ReviewStore.ts'
 
 export function ReviewInsights() {
-  const { diff } = useReviewStore()
+  const { diff, link } = useReviewStore()
 
   return <>
     {diff &&
@@ -51,7 +52,7 @@ export function ReviewInsights() {
                          extra={<Button onClick={e => { loadInsight() }}>Reload {insight.display} insights</Button>}/>
         }
 
-        return <Typography.Text>{aiInsight}</Typography.Text>
+        return <Markdown>{aiInsight}</Markdown>
       }
 
       async function loadInsight(): Promise<void> {
@@ -61,7 +62,7 @@ export function ReviewInsights() {
         setIsInsightError(false)
 
         try {
-          const response = await AssistApi.getInsight(insight.id)
+          const response = await AssistApi.getInsight(link, insight.id)
           setAiInsight(response)
 
         } catch (e) {
