@@ -1,22 +1,23 @@
-import {Button, Flex, Radio, Typography} from '@mparticle/aquarium'
-import {useCallback, useEffect, useMemo, useState} from 'react'
+import {Flex, Radio, Typography} from '@mparticle/aquarium'
+import {useCallback, useEffect, useMemo} from 'react'
 import {Diff, FileData, getChangeKey, GutterOptions, GutterType, Hunk, parseDiff, ViewType} from 'react-diff-view'
-import {AssistApi} from 'src/api/AssistApi.ts'
 import DiffCommentTrigger from 'src/components/Diff/DiffCommentTrigger.tsx'
 import {LocalStorageKeys} from 'src/constants/LocalStorageKeys.ts'
 import {useDiffComments} from 'src/hooks/useDiffComments.ts'
 import {useLocalStorage} from 'src/hooks/useLocalStorage.tsx'
 import {AssistedCommentsResponse} from 'src/interfaces/AssistedCommentsResponse'
+import {useCommentsStore} from 'src/stores/CommentsStore.ts'
 import {useReviewStore} from 'src/stores/ReviewStore.ts'
 
 export function ReviewDiff() {
-  const { link, diff, /* fileOrder, setFileOrder, setFileOrderReason, */ assistedComments } = useReviewStore()
+  const { link, diff} = useReviewStore()
+  const { aiComments, } = useCommentsStore()
 
   const [viewType, setViewType] = useLocalStorage<ViewType>(LocalStorageKeys.diffViewType, 'split')
   const [gutterType, setGutterType] = useLocalStorage<GutterType>(LocalStorageKeys.diffGutterType, 'anchor')
 
   const files = parseDiff(diff).sort(sortByFileOrder)
-  console.log({ files, assistedComments });
+  console.log({ files, aiComments });
 
   const viewTypeOptions = [
     { label: 'Split', value: 'split' },
@@ -140,16 +141,7 @@ export function ReviewDiff() {
   async function addAiComments(link: string): Promise<void> {
     if (!diff) return
 
-    const assistedCommentsResponse = await AssistApi.getAiComments(link)
-    
-    // const assistedCommentsResponse = JSON.parse(response) as AssistedCommentsResponse
-    // const fileOrder = assistedCommentsResponse.files.map(file => file.diffFile)
-
-    // setFileOrder(fileOrder)
-
-    // setFileOrderReason(assistedCommentsResponse.orderingReason)
-
-    assistedCommentsResponse.files.forEach(file => {
+    aiComments.files.forEach(file => {
       file.comments.forEach(comment => {
         const content = file.diffFile + comment.comment
         postGeneratedComment(comment.lineNumber, content)
@@ -177,7 +169,7 @@ export function ReviewDiff() {
   }
 
   function sortByFileOrder(a: FileData, b: FileData) {
-    const fileOrder = (assistedComments as AssistedCommentsResponse).files.map(file => file.diffFile);
+    const fileOrder = (aiComments as AssistedCommentsResponse).files.map(file => file.diffFile);
     return fileOrder.findIndex(diffFile => diffFile.includes(a.newPath)) - fileOrder.findIndex(diffFile => diffFile.includes(b.newPath))
   }
 }

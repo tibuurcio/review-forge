@@ -1,7 +1,8 @@
 import {Input, Typography} from '@mparticle/aquarium'
 import {useState} from 'react'
-import { AssistApi } from 'src/api/AssistApi'
+import {AssistApi} from 'src/api/AssistApi'
 import {ReviewApi} from 'src/api/ReviewApi.ts'
+import {useCommentsStore} from 'src/stores/CommentsStore.ts'
 import {useReviewStore} from 'src/stores/ReviewStore.ts'
 
 export function ReviewInput() {
@@ -9,10 +10,8 @@ export function ReviewInput() {
   const [isInputError, setIsInputError] = useState<boolean>()
   const [isFetchingError, setIsFetchingError] = useState<boolean>()
 
-  const { link: reviewLink } = useReviewStore()
-  const setReviewLink = useReviewStore(state => state.setLink)
-  const setReviewDiff = useReviewStore(state => state.setDiff)
-  const setAssistedComments = useReviewStore(state => state.setAssistedComments)
+  const { link: reviewLink, setReviewLink, setDiff } = useReviewStore()
+  const { setAiComments } = useCommentsStore()
 
   return <>
     <div className="reviewInput__wrapper">
@@ -58,7 +57,15 @@ export function ReviewInput() {
   }
 
   async function fetchReview(): Promise<void> {
-    setReviewDiff(await ReviewApi.getDiff(reviewLink))
-    setAssistedComments(await AssistApi.getAiComments(reviewLink))
+    try {
+      const diff = await ReviewApi.getDiff(reviewLink)
+      const aiComments = await AssistApi.getAiComments(reviewLink)
+      setDiff(diff)
+      setAiComments(aiComments)
+    } catch (e) {
+
+    } finally {
+
+    }
   }
 }
