@@ -1,13 +1,12 @@
 import {Button, Flex, Radio, Typography} from '@mparticle/aquarium'
-import {Padding} from '@mparticle/aquarium/dist/style.ts'
-import {ReactElement, useCallback, useEffect, useMemo, useState} from 'react'
+import {useCallback, useEffect, useMemo, useState} from 'react'
 import {Diff, FileData, getChangeKey, GutterOptions, GutterType, Hunk, parseDiff, ViewType} from 'react-diff-view'
-import {DiffAiComment} from 'src/components/Diff/DiffAiComment.tsx'
+import {AssistApi} from 'src/api/AssistApi.ts'
 import DiffCommentTrigger from 'src/components/Diff/DiffCommentTrigger.tsx'
-import {AiCommentMock} from 'src/constants/AiCommentMock.ts'
 import {LocalStorageKeys} from 'src/constants/LocalStorageKeys.ts'
 import {useDiffComments} from 'src/hooks/useDiffComments.ts'
 import {useLocalStorage} from 'src/hooks/useLocalStorage.tsx'
+import {AssistedCommentsResponse} from 'src/interfaces/AssistedCommentsResponse'
 import {useReviewStore} from 'src/stores/ReviewStore.ts'
 
 export function ReviewDiff() {
@@ -38,7 +37,7 @@ export function ReviewDiff() {
                               [comments, saveEdit, editComment, cancelEdit, deleteComment])
 
 
-  useEffect(addAiComments, [diff])
+  useEffect(() => { addAiComments() }, [diff])
 
   return <>
     {diff &&
@@ -84,7 +83,11 @@ export function ReviewDiff() {
   function renderFile(file: FileData) {
     const { oldRevision, newRevision, type, hunks } = file
     return (<>
-      <Typography.Text className="reviewDiff__fileName" type="secondary">New Path - {file.newPath}</Typography.Text>
+      <Flex align="center" justify="space-between" className="reviewDiff__fileName">
+        <Typography.Text type="secondary">Old Path - {file.oldPath}</Typography.Text>
+        <Typography.Text type="secondary">New Path - {file.newPath}</Typography.Text>
+      </Flex>
+
       <Diff key={oldRevision + '-' + newRevision}
             viewType={viewType}
             diffType={type}
@@ -122,39 +125,40 @@ export function ReviewDiff() {
 
   function generateDiffWidgets(files: FileData[]) {
 
-    let aiCommentWidgets: Record<string, React.ReactElement[]>
+    let aiCommentWidgets: Record<string, React.ReactElement[]> = {}
 
-    files.forEach(file => {
-
-      aiCommentWidgets = comments.reduce<Record<string, ReactElement[]>>(
-        (widgets, comment) => {
-          if (!widgets[comment.changeKey]) widgets[comment.changeKey] = []
-
-          const fileName = file.newPath
-
-          const isAiComment = comment.content.startsWith(fileName)
-          const message = comment.content.replace(fileName, '')
-
-          //todo: something strange is going on here, not working as expected
-          if (!isAiComment) {
-            widgets[comment.changeKey].push(<DiffAiComment message={message}/>)
-          }
-
-          return widgets
-        }, {})
-    })
+    // files.forEach(file => {
+    //   aiCommentWidgets = comments.reduce<Record<string, ReactElement[]>>(
+    //     (widgets, comment) => {
+    //       if (!widgets[comment.changeKey]) widgets[comment.changeKey] = []
+    //
+    // debugger
+    //       const fileName = file.newPath
+    //
+    //       const isAiComment = comment.content.startsWith(fileName)
+    //       const message = comment.content.replace(fileName, '')
+    //
+    //       //todo: something strange is going on here, not working as expected
+    //       if (!isAiComment) {
+    //         widgets[comment.changeKey].push(<DiffAiComment message={message}/>)
+    //       }
+    //
+    //       return widgets
+    //     }, {})
+    // })
 
     return aiCommentWidgets
   }
 
 
-  function addAiComments(): void {
+  async function addAiComments(): Promise<void> {
     if (!diff) return
 
-    const assistedCommentsResponse = AiCommentMock
+    const response = await AssistApi.getAiComments() as string
+    const assistedCommentsResponse = JSON.parse(response.substr(8, response.length - 12)) as AssistedCommentsResponse
 
+    const fileOrder = assistedCommentsResponse.files.map(file => file.newPath)
 
-    const fileOrder = assistedCommentsResponse.files.map(file => file.diffFile[0])
     setFileOrder(fileOrder)
 
     setFileOrderReason(assistedCommentsResponse.orderingReason)
@@ -162,9 +166,7 @@ export function ReviewDiff() {
 
     assistedCommentsResponse.files.forEach(file => {
       file.comments.forEach(comment => {
-        // const fileName = extractFilenameFromDiffName(file.diffFile) as string
-        const content = file.diffFile[0] + comment.comment
-
+        const content = file.newPath + comment.comment
         postGeneratedComment(comment.lineNumber, content)
       })
     })

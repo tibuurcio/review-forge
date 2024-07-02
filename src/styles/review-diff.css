@@ -22,7 +22,7 @@
     top: 0;
     display: flex;
     z-index: 1;
-    width: 100%;
+    width: 97%;
     padding: var(--padding-sm) var(--padding);
     background-color: white;
 }
