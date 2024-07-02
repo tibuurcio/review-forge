@@ -10,13 +10,13 @@ import {AssistedCommentsResponse} from 'src/interfaces/AssistedCommentsResponse'
 import {useReviewStore} from 'src/stores/ReviewStore.ts'
 
 export function ReviewDiff() {
-  const { link, diff, fileOrder, setFileOrder, setFileOrderReason } = useReviewStore()
+  const { link, diff, /* fileOrder, setFileOrder, setFileOrderReason, */ assistedComments } = useReviewStore()
 
   const [viewType, setViewType] = useLocalStorage<ViewType>(LocalStorageKeys.diffViewType, 'split')
   const [gutterType, setGutterType] = useLocalStorage<GutterType>(LocalStorageKeys.diffGutterType, 'anchor')
 
   const files = parseDiff(diff).sort(sortByFileOrder)
-
+  console.log({ files, assistedComments });
 
   const viewTypeOptions = [
     { label: 'Split', value: 'split' },
@@ -35,7 +35,7 @@ export function ReviewDiff() {
                               [comments, saveEdit, editComment, cancelEdit, deleteComment])
 
 
-  useEffect(() => { addAiComments() }, [diff])
+  useEffect(() => { addAiComments(link) }, [diff])
 
   return <>
     {diff &&
@@ -137,33 +137,32 @@ export function ReviewDiff() {
     return aiCommentWidgets
   }
 
-  async function addAiComments(): Promise<void> {
+  async function addAiComments(link: string): Promise<void> {
     if (!diff) return
 
-    const response = await AssistApi.getAiComments() as string
+    const assistedCommentsResponse = await AssistApi.getAiComments(link)
+    
+    // const assistedCommentsResponse = JSON.parse(response) as AssistedCommentsResponse
+    // const fileOrder = assistedCommentsResponse.files.map(file => file.diffFile)
 
-    const assistedCommentsResponse = JSON.parse(removeJsonWrap(response)) as AssistedCommentsResponse
-    const fileOrder = assistedCommentsResponse.files.map(file => file.newPath)
+    // setFileOrder(fileOrder)
 
-    setFileOrder(fileOrder)
-
-    setFileOrderReason(assistedCommentsResponse.orderingReason)
+    // setFileOrderReason(assistedCommentsResponse.orderingReason)
 
     assistedCommentsResponse.files.forEach(file => {
       file.comments.forEach(comment => {
-        const content = file.newPath + comment.comment
+        const content = file.diffFile + comment.comment
         postGeneratedComment(comment.lineNumber, content)
       })
     })
 
 
-    const {data } = await AssistApi.analyzePR(link)
-    const payloads = data.map(a => JSON.parse(removeJsonWrap(a.payload)))
+    // const { data } = await AssistApi.analyzePR(link)
+    // const payloads = data.map(a => JSON.parse(a.payload))
 
-
-    function removeJsonWrap(str: string): string {
-      return str.substr(8, str.length - 12)
-    }
+    // function removeJsonWrap(str: string): string {
+    //   return str.substr(8, str.length - 12)
+    // }
 
     function postGeneratedComment(lineNumber: number, content: string) {
       const changeKey = getChangeKey({
@@ -178,7 +177,7 @@ export function ReviewDiff() {
   }
 
   function sortByFileOrder(a: FileData, b: FileData) {
-    return fileOrder.indexOf(a.newPath) - fileOrder.indexOf(b.newPath)
+    const fileOrder = (assistedComments as AssistedCommentsResponse).files.map(file => file.diffFile);
+    return fileOrder.findIndex(diffFile => diffFile.includes(a.newPath)) - fileOrder.findIndex(diffFile => diffFile.includes(b.newPath))
   }
-
 }

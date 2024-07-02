@@ -1,3 +1,4 @@
+import { AssistedCommentsResponse } from 'src/interfaces/AssistedCommentsResponse'
 import {create} from 'zustand'
 
 export const useReviewStore = create(set => ({
@@ -19,6 +20,9 @@ export const useReviewStore = create(set => ({
   fileOrder: [] as string[],
   setFileOrder: (fileOrder: string[]) => set({ fileOrder }),
 
+  assistedComments: null,
+  setAssistedComments: (response: AssistedCommentsResponse) => set({ assistedComments: response }),
+ 
   fileOrderReason: '',
   setFileOrderReason: (fileOrderReason: string) => set({ fileOrderReason }),
 }))
