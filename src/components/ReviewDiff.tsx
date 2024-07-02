@@ -10,7 +10,7 @@ import {AssistedCommentsResponse} from 'src/interfaces/AssistedCommentsResponse'
 import {useReviewStore} from 'src/stores/ReviewStore.ts'
 
 export function ReviewDiff() {
-  const { diff, fileOrder, setFileOrder, setFileOrderReason } = useReviewStore()
+  const { link, diff, fileOrder, setFileOrder, setFileOrderReason } = useReviewStore()
 
   const [viewType, setViewType] = useLocalStorage<ViewType>(LocalStorageKeys.diffViewType, 'split')
   const [gutterType, setGutterType] = useLocalStorage<GutterType>(LocalStorageKeys.diffGutterType, 'anchor')
@@ -137,19 +137,17 @@ export function ReviewDiff() {
     return aiCommentWidgets
   }
 
-
   async function addAiComments(): Promise<void> {
     if (!diff) return
 
     const response = await AssistApi.getAiComments() as string
-    const assistedCommentsResponse = JSON.parse(response.substr(8, response.length - 12)) as AssistedCommentsResponse
 
+    const assistedCommentsResponse = JSON.parse(removeJsonWrap(response)) as AssistedCommentsResponse
     const fileOrder = assistedCommentsResponse.files.map(file => file.newPath)
 
     setFileOrder(fileOrder)
 
     setFileOrderReason(assistedCommentsResponse.orderingReason)
-
 
     assistedCommentsResponse.files.forEach(file => {
       file.comments.forEach(comment => {
@@ -158,6 +156,14 @@ export function ReviewDiff() {
       })
     })
 
+
+    const {data } = await AssistApi.analyzePR(link)
+    const payloads = data.map(a => JSON.parse(removeJsonWrap(a.payload)))
+
+
+    function removeJsonWrap(str: string): string {
+      return str.substr(8, str.length - 12)
+    }
 
     function postGeneratedComment(lineNumber: number, content: string) {
       const changeKey = getChangeKey({
