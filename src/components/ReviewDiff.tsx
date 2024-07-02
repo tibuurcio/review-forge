@@ -140,43 +140,7 @@ export function ReviewDiff() {
   }
 
   function generateDiffWidgets(files: FileData[]) {
-    let aiCommentWidgets: Record<string, React.ReactElement[]> = {}
 
-    // const changes = hunks.reduce((result, {changes}) => [...result, ...changes], []);
-    // const longLines = changes.filter(({content}) => content.length > 120);
-    // return longLines.reduce(
-    //     (widgets, change) => {
-    //         const changeKey = getChangeKey(change);
-
-    //         return {
-    //             ...widgets,
-    //             [changeKey]: <span className="error">Line too long</span>,
-    //         };
-    //     },
-    //     {}
-    // );
-
-    // files.forEach(file => {
-    //   aiCommentWidgets = comments.reduce<Record<string, ReactElement[]>>(
-    //     (widgets, comment) => {
-    //       if (!widgets[comment.changeKey]) widgets[comment.changeKey] = []
-    //
-    // debugger
-    //       const fileName = file.newPath
-    //
-    //       const isAiComment = comment.content.startsWith(fileName)
-    //       const message = comment.content.replace(fileName, '')
-    //
-    //       //todo: something strange is going on here, not working as expected
-    //       if (!isAiComment) {
-    //         widgets[comment.changeKey].push(<DiffAiComment message={message}/>)
-    //       }
-    //
-    //       return widgets
-    //     }, {})
-    // })
-
-    // return aiCommentWidgets
   }
 
   async function addAiComments(link: string): Promise<void> {
