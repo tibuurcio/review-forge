@@ -7,7 +7,7 @@ export const Predictions: Prediction[] = [
   },
   {
     id: 'issues',
-    display: 'Issues'
+    display: 'Issue'
   },
   {
     id: 'testing',
