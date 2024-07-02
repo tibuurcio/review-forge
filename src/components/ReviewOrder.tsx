@@ -11,19 +11,15 @@ export function ReviewOrder() {
 
        <span>
          <Flex align="baseline" gap={MarginSm}>
-           {isShowingOrder &&
-            <Typography.Text type="secondary">This is the suggested review order:</Typography.Text>}
+           <Typography.Text type="secondary">This is the suggested review order:</Typography.Text>
          </Flex>
 
-         {isShowingOrder &&
-          <Typography.Title level={4} type="secondary" style={{ marginTop: 0 }}>{fileOrderReason}</Typography.Title>}
+         <Typography.Title level={4} type="secondary" style={{ marginTop: 0 }}>{fileOrderReason}</Typography.Title>
 
-         {isShowingOrder && <>
-           <div className="reviewFiles__checkboxScroll">
-             <Checkbox.Group className="reviewFiles__checkboxGroup"
-                             options={fileOrder.map(fileName => ({ label: fileName, value: fileName }))}/>
-           </div>
-         </>}
+         <div className="reviewFiles__checkboxScroll">
+           <Checkbox.Group className="reviewFiles__checkboxGroup"
+                           options={fileOrder.map(fileName => ({ label: fileName, value: fileName }))}/>
+         </div>
        </span>
 
      </Flex>}
