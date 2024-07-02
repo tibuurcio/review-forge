@@ -2,13 +2,14 @@ import {BaseApi} from 'src/api/BaseApi.ts'
 import {AssistedCommentsResponse} from 'src/interfaces/AssistedCommentsResponse'
 
 export const AssistApi = {
-  getPrediction,
+  getInsight,
   getAiComments,
-  analyzePR,
 } as const
 
-async function getPrediction(predictionId: string): Promise<string> {
-  return await BaseApi.get(`assist/${predictionId}`)
+async function getInsight(reviewLink: string, insightId: string): Promise<string> {
+  const endpoint = `analyze/${insightId}`
+  const query = `url=${reviewLink}`
+  return await BaseApi.get(endpoint, query)
 }
 
 async function getAiComments(reviewLink: string): Promise<AssistedCommentsResponse> {
@@ -96,4 +97,7 @@ async function analyzePR(reviewLink: string): Promise<{ component: string, paylo
   const body = {}
 
   return await BaseApi.post(url, query, body)
+  // const endpoint = 'comments'
+  // const query = `url=${reviewLink}&reload=true`
+  // return await BaseApi.get(endpoint, query)
 }

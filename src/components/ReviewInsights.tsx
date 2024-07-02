@@ -1,12 +1,13 @@
 import {Button, Center, Collapse, ICollapseProps, Result, Skeleton, Typography} from '@mparticle/aquarium'
 import {MpBrandSecondary3} from '@mparticle/aquarium/dist/style.ts'
 import {useState} from 'react'
+import Markdown from 'react-markdown'
 import {AssistApi} from 'src/api/AssistApi.ts'
-import {Predictions} from 'src/constants/Predictions.ts'
+import {InsightTypes} from 'src/constants/InsightTypes.ts'
 import {useReviewStore} from 'src/stores/ReviewStore.ts'
 
 export function ReviewInsights() {
-  const { diff } = useReviewStore()
+  const { diff, link } = useReviewStore()
 
   return <>
     {diff &&
@@ -18,13 +19,13 @@ export function ReviewInsights() {
   </>
 
   function getItems(): ICollapseProps['items'] {
-    return Predictions.map(prediction => {
+    return InsightTypes.map(insight => {
       const [isInsightLoading, setIsInsightLoading] = useState<boolean>(false)
       const [isInsightError, setIsInsightError] = useState<boolean>(false)
-      const [insight, setInsight] = useState<string>()
+      const [aiInsight, setAiInsight] = useState<string>()
 
       return {
-        key: prediction.id,
+        key: insight.id,
         className: 'reviewInsights__item',
         onClick: loadInsight,
         label: <InsightLabel/>,
@@ -39,7 +40,7 @@ export function ReviewInsights() {
 
       function InsightLabel() {
         return (<>
-          <Typography.Text strong>{prediction.display} insights</Typography.Text>
+          <Typography.Text strong>{insight.display} insights</Typography.Text>
         </>)
       }
 
@@ -48,22 +49,22 @@ export function ReviewInsights() {
 
         if (isInsightError) {
           return <Result status="error" title="Something went wrong, please try again later."
-                         extra={<Button onClick={e => { loadInsight() }}>Reload {prediction.display} insights</Button>}/>
+                         extra={<Button onClick={e => { loadInsight() }}>Reload {insight.display} insights</Button>}/>
         }
 
-        return <Typography.Text>{insight}</Typography.Text>
+        return <Markdown>{aiInsight}</Markdown>
       }
 
       async function loadInsight(): Promise<void> {
-        if (insight) return
+        if (aiInsight) return
 
         setIsInsightLoading(true)
         setIsInsightError(false)
 
         try {
-          const response = await AssistApi.getPrediction(prediction.id)
+          const response = await AssistApi.getInsight(link, insight.id)
+          setAiInsight(response)
 
-          setInsight(response)
         } catch (e) {
           setIsInsightError(true)
         } finally {

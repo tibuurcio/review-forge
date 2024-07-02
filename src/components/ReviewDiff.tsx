@@ -12,13 +12,12 @@ import { DiffAiComment } from './Diff/DiffAiComment'
 
 export function ReviewDiff() {
   const { link, diff } = useReviewStore()
-  const { aiComments } = useCommentsStore()
+  const { aiComments, } = useCommentsStore()
 
   const [viewType, setViewType] = useLocalStorage<ViewType>(LocalStorageKeys.diffViewType, 'split')
   const [gutterType, setGutterType] = useLocalStorage<GutterType>(LocalStorageKeys.diffGutterType, 'anchor')
 
   const files = parseDiff(diff).sort(sortByFileOrder)
-  console.log({ files, aiComments });
 
   const viewTypeOptions = [
     { label: 'Split', value: 'split' },
@@ -211,7 +210,7 @@ export function ReviewDiff() {
   }
 
   function sortByFileOrder(a: FileData, b: FileData) {
-    const fileOrder = (aiComments as AssistedCommentsResponse).files.map(file => file.diffFile);
+    const fileOrder = (aiComments as AssistedCommentsResponse).files.map(file => file.diffFile)
     return fileOrder.findIndex(diffFile => diffFile.includes(a.newPath)) - fileOrder.findIndex(diffFile => diffFile.includes(b.newPath))
   }
 }
